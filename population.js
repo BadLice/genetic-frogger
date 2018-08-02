@@ -9,6 +9,7 @@ class Population
     this.toUpdate = false;
     this.velocity = 1;
     this.maxMoves = 5;
+    this.reachedWin = false;
 
     for (var i = 0; i < maxPop; i++)
     {
@@ -34,8 +35,10 @@ class Population
   {
     if (this.finishedGeneration())
     {
-      if (++this.generation % 5 == 0)
-        this.maxMoves += 5;
+      //add 5 moves every 5 generation (if not won)
+      if (!this.reachedWin)
+        if (++this.generation % 5 == 0)
+          this.maxMoves += 5;
 
       var newPop = []
       for (var i = 0; i < this.population.length; i++)
@@ -66,14 +69,19 @@ class Population
   finishedGeneration()
   {
     var finished = true;
+    var won = true;
     for (var o of this.population)
     {
+      if (!o.won)
+      {
+        won = false;
+      }
       if (!o.finished)
       {
         finished = false;
-        break;
       }
     }
+    this.reachedWin = won;
     return finished;
   }
 
@@ -114,7 +122,7 @@ class Population
     return current;
   }
 
-  draw()
+  drawDebug()
   {
 
     for (var o of this.population)
@@ -123,6 +131,15 @@ class Population
         o.draw(color(255, 0, 0));
     }
 
+    var cm = this.currentMax();
+    if (cm.dead)
+      cm.draw(color(0, 0, 255));
+    else
+      cm.draw(color(0, 255, 0));
+  }
+
+  draw()
+  {
     var cm = this.currentMax();
     if (cm.dead)
       cm.draw(color(0, 0, 255));

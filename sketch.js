@@ -4,6 +4,7 @@ var peep;
 var mutationRate = 0.01;
 var maxPop = 500;
 var bestEver = null;
+var showDebug = false;
 
 function setup()
 {
@@ -16,12 +17,20 @@ function draw()
 {
   background(0);
   drawAndUpdateRoads()
-
   peep.update();
-  peep.draw();
   peep.generate();
 
-  displayInfo();
+  if (showDebug)
+  {
+    displayInfo();
+    peep.drawDebug();
+  }
+  else
+  {
+    peep.draw();
+    info();
+  }
+
 }
 
 function initRoads()
@@ -104,4 +113,17 @@ function displayInfo()
 
   precBest = best.fitness;
 
+}
+
+function info()
+{
+  textSize(20);
+  fill(0, 0, 0);
+  text("Press a key for debug", 10, 20);
+
+}
+
+function keyPressed()
+{
+  showDebug = !showDebug;
 }

@@ -48,9 +48,6 @@ class Player
 
   update()
   {
-
-
-
     this.moveDna();
     // this.moveKeyboard();
     var coll = this.collision();
@@ -89,6 +86,7 @@ class Player
     }
 
     this.scorr();
+    this.calculateFitness();
 
   }
 
@@ -313,18 +311,10 @@ class Player
 
   die()
   {
-    // frameRate(1);
-    // if (this.countdown == 0)
-    // {
-    //   frameRate(60);
-    //   this.reset();
-    //   return;
-    // }
-    // else
-    //   this.countdown--;
     this.dead = true;
     this.won = false;
     this.finished = true;
+    this.calculateFitness();
 
   }
 
@@ -333,6 +323,7 @@ class Player
     this.won = true;
     this.dead = false;
     this.finished = true;
+    this.calculateFitness();
   }
 
   crossover(parent)
