@@ -5,31 +5,43 @@ var mutationRate = 0.01;
 var maxPop = 500;
 var bestEver = null;
 var showDebug = false;
+var speed = 100;
+var vel;
 
 function setup()
 {
   createCanvas(780, 800);
   initRoads();
+  vel = createSlider(1, 100, 100);
+  vel.position(width - 150, 10);
   peep = new Population(mutationRate, maxPop);
 }
 
 function draw()
 {
-  background(0);
-  drawAndUpdateRoads()
-  peep.update();
-  peep.generate();
+  for (var i = 0; i < speed; i++)
+  {
+    background(0);
+    drawAndUpdateRoads()
+    peep.update();
+    peep.generate();
 
-  if (showDebug)
-  {
-    displayInfo();
-    peep.drawDebug();
+    if (this.speed > 10)
+      showDebug = false;
+
+    if (showDebug)
+    {
+      displayInfo();
+      peep.drawDebug();
+    }
+    else
+    {
+      peep.draw();
+      info();
+    }
   }
-  else
-  {
-    peep.draw();
-    info();
-  }
+
+  this.speed = vel.value();
 
 }
 
@@ -117,13 +129,17 @@ function displayInfo()
 
 function info()
 {
-  textSize(20);
-  fill(0, 0, 0);
-  text("Press a key for debug", 10, 20);
-
+  if (this.speed <= 10)
+  {
+    textSize(20);
+    fill(0, 0, 0);
+    text("Press a key for debug", 10, 20);
+  }
 }
 
 function keyPressed()
 {
+
   showDebug = !showDebug;
+
 }

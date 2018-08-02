@@ -29,7 +29,11 @@ class Player
     {
       for (var i = 0; i < this.nMoves; i++)
       {
-        this.dna.push(random(1));
+        this.dna.push(
+        {
+          move: random(1),
+          fpsInterval: random(1)
+        });
       }
     }
     else
@@ -38,9 +42,17 @@ class Player
       for (var i = 0; i < this.nMoves; i++)
       {
         if (i < childDNA.length)
-          this.dna.push(childDNA[i]);
+          this.dna.push(
+          {
+            move: childDNA[i].move,
+            fpsInterval: childDNA[i].fpsInterval
+          });
         else
-          this.dna.push(random(1));
+          this.dna.push(
+          {
+            move: random(1),
+            fpsInterval: random(1)
+          });
       }
 
     }
@@ -124,7 +136,6 @@ class Player
       {
         if (!this.reachedEdges(keyCode))
         {
-          this.movesCount++;
           //update road counter
           if (keyCode === UP_ARROW)
           {
@@ -176,18 +187,19 @@ class Player
     if (!this.finished)
     {
       //makes a move every 30 fps (0.5 seconds);
-      if (this.fpsCount == this.fpsInterval)
+      if (this.dnaIndex < this.dna.length)
       {
-        this.fpsCount = 0;
-
-        if (this.dnaIndex < this.dna.length)
+        if (this.fpsCount >= map(this.dna[this.dnaIndex].fpsInterval, 0, 1, 0, 60))
         {
+          this.fpsCount = 0;
           if (this.canMove)
           {
-            var k = this.getKeyCode(this.dna[this.dnaIndex]);
+            this.movesCount++;
+            var k = this.getKeyCode(this.dna[this.dnaIndex].move);
 
             if (!this.reachedEdges(k))
             {
+
               //update road counter
               if (k === UP_ARROW)
               {
@@ -235,12 +247,12 @@ class Player
         }
         else
         {
-          this.finished = true;
+          this.fpsCount++;
         }
       }
       else
       {
-        this.fpsCount++;
+        this.finished = true;
       }
     }
   }
@@ -304,8 +316,24 @@ class Player
     strokeWeight(4)
     fill(col);
     rect(0, 0, this.w, this.w);
+    pop();
+  }
+
+  drawFitness(col)
+  {
+    if (col === undefined)
+    {
+      col = this.col;
+    }
+
+
+    push();
+    translate(this.x, this.y);
+    stroke(72);
+    strokeWeight(4)
+    fill(col);
     this.calculateFitness();
-    // text(this.fitness * 1000000, -15, 0);
+    text(this.fitness * 1000000, -15, 0);
     pop();
   }
 
@@ -345,7 +373,10 @@ class Player
     for (var i = 0; i < this.dna.length; i++)
     {
       if (random(1) < mr)
-        this.dna[i] = random(1);
+        this.dna[i] = {
+          move: random(1),
+          fpsInterval: random(1)
+        };
     }
   }
 
@@ -354,18 +385,16 @@ class Player
     this.fitness = pow(1 / this.y, 2);
 
     if (this.won)
-      this.fitness = 100000 * pow(1 / this.y * this.movesCount, 2);
+    {
+      this.fitness = pow(100000000 / this.y * this.movesCount, 2);
+    }
 
     if (this.dead)
-      this.fitness *= 0.5;
+      this.fitness *= 0.9;
   }
 
   reset()
   {
-    // this.x = (width / 2);
-    // this.y = height - 28;
-    // this.roadCount = 0;
-    // this.countdown = 1;
     resetSketch();
   }
 }

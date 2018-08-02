@@ -48,8 +48,6 @@ class Population
 
         var parent1 = this.pickOne();
         var parent2 = this.pickOne();
-        // noLoop();
-        // console.log(parent1.dna.length)
 
         var childDNA = parent1.crossover(parent2);
 
@@ -128,7 +126,16 @@ class Population
     for (var o of this.population)
     {
       if (!o.finished)
+      {
         o.draw(color(255, 0, 0));
+        // o.drawFitness(color(255, 0, 0));
+      }
+
+      if (o.won)
+      {
+        o.draw(color(255, 255, 255));
+        // o.drawFitness(color(255, 255, 255));
+      }
     }
 
     var cm = this.currentMax();
@@ -145,6 +152,13 @@ class Population
       cm.draw(color(0, 0, 255));
     else
       cm.draw(color(0, 255, 0));
+
+    for (var o of this.population)
+    {
+      if (o.won)
+        o.draw(color(255, 255, 255));
+    }
+
   }
 
   update()
