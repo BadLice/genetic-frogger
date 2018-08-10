@@ -11,6 +11,13 @@ class Population
     this.maxMoves = 5;
     this.reachedWin = false;
 
+    this.best5 = [];
+    this.tempPop = [];
+    this.highlights = false;
+    this.highlightsIndex = 0;
+    this.maxHighlights = 3;
+    this.delay = false;
+
     for (var i = 0; i < maxPop; i++)
     {
       this.population[i] = new Player(this.maxMoves);
@@ -31,37 +38,94 @@ class Population
     }
   }
 
+  updateBest5()
+  {
+    if (this.generation % 5 == 0)
+    {
+      if (this.best5.length >= this.maxHighlights)
+      {
+        this.best5.splice(0, 1);
+      }
+      this.best5.push(new Player(this.currentMax().nMoves, this.currentMax().dna, this.generation));
+    }
+  }
+
+  showHighLihts()
+  {
+    this.highlights = true;
+    this.tempPop = this.population;
+    this.highlightsIndex = 0;
+    this.nextHighlight();
+  }
+
+  nextHighlight()
+  {
+    this.draw();
+    this.delay = true;
+    //finished highlights
+    if (this.highlightsIndex >= this.best5.length)
+    {
+      this.highlights = false;
+      this.population = this.tempPop;
+      for (var i = 0; i < this.best5.length; i++)
+      {
+        this.best5[i] = new Player(this.best5[i].nMoves, this.best5[i].dna, this.best5[i].generation);
+      }
+
+      for (var i = 0; i < this.population.length; i++)
+      {
+        this.population[i] = new Player(this.population[i].nMoves, this.population[i].dna);
+      }
+      return;
+    }
+
+    this.population = [];
+    this.population.push(this.best5[this.highlightsIndex]);
+    this.highlightsIndex++;
+    initRoads();
+
+  }
+
   generate()
   {
     if (this.finishedGeneration())
     {
-      //add 5 moves every 5 generation (if not won)
-      if (!this.reachedWin)
-        if (++this.generation % 5 == 0)
-          this.maxMoves += 5;
-
-      var newPop = []
-      for (var i = 0; i < this.population.length; i++)
+      if (!this.highlights)
       {
-        //normalizes the probability
-        this.naturalSelection();
+        this.updateBest5();
+        //add 5 moves every 5 generation (if not won)
+        this.generation++;
+        if (!this.reachedWin)
+          if (this.generation % 5 == 0)
+            this.maxMoves += 5;
 
-        var parent1 = this.pickOne();
-        var parent2 = this.pickOne();
 
-        var childDNA = parent1.crossover(parent2);
+        var newPop = []
+        for (var i = 0; i < this.population.length; i++)
+        {
+          //normalizes the probability
+          this.naturalSelection();
+
+          var parent1 = this.pickOne();
+          var parent2 = this.pickOne();
+
+          var childDNA = parent1.crossover(parent2);
 
 
-        var child = new Player(this.maxMoves, childDNA);
-        child.mutate(this.mutationRate);
+          var child = new Player(this.maxMoves, childDNA);
+          child.mutate(this.mutationRate);
 
-        newPop[i] = child;
+          newPop[i] = child;
 
+        }
+        this.population = newPop;
+        initRoads();
       }
-      this.population = newPop;
-      initRoads();
+      else
+      {
+        this.nextHighlight();
+      }
     }
-
   }
 
   finishedGeneration()
@@ -70,16 +134,15 @@ class Population
     var won = true;
     for (var o of this.population)
     {
-      if (!o.won)
+      if (o.won)
       {
-        won = false;
+        this.reachedWin = true;
       }
       if (!o.finished)
       {
         finished = false;
       }
     }
-    this.reachedWin = won;
     return finished;
   }
 

@@ -1,6 +1,6 @@
 class Player
 {
-  constructor(nMoves, childDNA)
+  constructor(nMoves, childDNA, generation)
   {
     this.x = (width / 2);
     this.y = height - 28;
@@ -24,6 +24,7 @@ class Player
     this.fpsInterval = 10;
     this.movesCount = 0;
     this.dna = [];
+    this.generation = generation;
 
     if (childDNA === undefined)
     {
@@ -317,6 +318,11 @@ class Player
     fill(col);
     rect(0, 0, this.w, this.w);
     pop();
+
+    if (this.generation)
+    {
+      text("Generation: " + this.generation, 10, 40);
+    }
   }
 
   drawFitness(col)

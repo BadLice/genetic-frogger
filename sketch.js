@@ -7,24 +7,34 @@ var bestEver = null;
 var showDebug = false;
 var speed = 100;
 var vel;
+var highlightsBtn;
 
 function setup()
 {
   createCanvas(780, 800);
   initRoads();
+  peep = new Population(mutationRate, maxPop);
   vel = createSlider(1, 100, 100);
   vel.position(width - 150, 10);
-  peep = new Population(mutationRate, maxPop);
+  // highlightsBtn = createButton("Show highlights");
+  // highlightsBtn.mousePressed(peep.showHighLihts);
+  // highlightsBtn.position(width - 300, 10);
+
+
 }
 
 function draw()
 {
+  if (peep.delay)
+  {
+    //0.5s of pause
+    delay(0.5);
+    peep.delay = false;
+  }
   for (var i = 0; i < speed; i++)
   {
     background(0);
     drawAndUpdateRoads()
-    peep.update();
-    peep.generate();
 
     if (this.speed > 10)
       showDebug = false;
@@ -39,6 +49,8 @@ function draw()
       peep.draw();
       info();
     }
+    peep.update();
+    peep.generate();
   }
 
   this.speed = vel.value();
@@ -129,17 +141,42 @@ function displayInfo()
 
 function info()
 {
+  textSize(20);
+  fill(0, 0, 0);
   if (this.speed <= 10)
   {
-    textSize(20);
-    fill(0, 0, 0);
-    text("Press a key for debug", 10, 20);
+    if (peep.highlights)
+      text("You are watching highlights", 10, 20);
+    else
+    {
+      text("Generation: " + peep.generation, 10, 20);
+      text("Press a key for debug, press 'B' for highlights", 10, 40);
+    }
   }
+  else
+  {
+    text("Generation: " + peep.generation, 10, 20);
+  }
+
+}
+
+function delay(s)
+{
+  var time = new Date().getTime();
+  while (new Date().getTime() - time < s * 1000);
 }
 
 function keyPressed()
 {
-
-  showDebug = !showDebug;
+  if (keyCode == 66)
+  {
+    if (peep.best5.length > 0)
+      peep.showHighLihts();
+  }
+  else
+  {
+    if (!this.highlights)
+      showDebug = !showDebug;
+  }
 
 }
